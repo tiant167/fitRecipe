@@ -69,7 +69,7 @@ class Evaluation(BaseModel):
     用户评测报告
     '''
 
-    user = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name=u'用户')
+    user = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name=u'用户', unique=true)
     #0 for male and 1 for female
     gender = models.IntegerField(verbose_name=u'性别', validators=[MinValueValidator(0), MaxValueValidator(1)])
     age = models.IntegerField(verbose_name=u'年龄', validators=MinValueValidator(5))
@@ -87,6 +87,7 @@ class Evaluation(BaseModel):
     exerciseInterval = models.IntegerField(verbose_name=u'运动时长', validators=[MinValueValidator(0), MaxValueValidator(3)])
     weightGoal = models.FloatField(verbose_name=u'目标体重', validators=MinValueValidator(0.0))
     daysToGoal = models.PositiveIntegerField(verbose_name=u'时间')
+    date = models.DateField(verbose_name=u'日期')
 
     class Meta:
         verbose_name = u'评测报告'
