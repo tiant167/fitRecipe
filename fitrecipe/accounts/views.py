@@ -107,30 +107,15 @@ class UploadEvaluationData(AuthView):
         上传评测数据
         '''
         user = Account.find_account_by_user(request.user)
-        evaluation = Evaluation()
-        evaluation.user = user
-        data = json.loads(request.body)
-        evaluation.gender = int(data.get('gender'))
-        evaluation.age = int(data.get('age'))
-        evaluation.height = int(data.get('height'))
-        evaluation.weight = float(data.get('weight'))
-        evaluation.roughFat = int(data.get('roughFat'))
-        evaluation.goalType = int(data.get('goalType'))
-        evaluation.weightGoal = float(data.get('weightGoal'))
-        evaluation.daysToGoal = int(data.get('daysToGoal'))
-        evaluation.preciseFat = float(data.get('preciseFat'))
-        evaluation.jobType = int(data.get('jobType'))
-        evaluation.exerciseFrequency = int(data.get('exerciseFrequency'))
-        evaluation.exerciseInterval = int(data.get('exerciseInterval'))
         try:
             e = Evaluation.objects.get(user=user)
-            #update evaluation
-            evaluation.pk = e.pk
-            evaluation.save()
         except Evaluation.DoesNotExist:
-            evaluation.save()
-        except Evaluation.MultipleObjectsReturned:
-            return self.fail_response(401, 'muiltiple evaluations exist')
+            e = Evaluation()
+            e.user = user
+        data = json.loads(request.body)
+        for k, v in data.items():
+            setattr(e, k, v)
+        e.save()
         return self.success_response('added')
 
 class DownloadEvaluationData(AuthView):
