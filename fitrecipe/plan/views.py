@@ -125,7 +125,7 @@ class CalendarList(BaseView):
         body = json.loads(request.body)
         plan_id = body.get('plan', None)
         try:
-            joined_date = datetime.strptime(body['authored_date'],'%Y-%m-%d').date()
+            joined_date = datetime.strptime(body['joined_date'],'%Y-%m-%d').date()
         except:
             joined_date = date.today()
         user = Account.find_account_by_user(request.user)
