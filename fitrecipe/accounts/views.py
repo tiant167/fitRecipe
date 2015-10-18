@@ -5,7 +5,7 @@
 # @Last Modified by:   chaihaotian
 # @Last Modified time: 2015-07-25 17:53:08
 import json
-
+from datetime import date, datetime
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
@@ -101,6 +101,7 @@ class ThirdPartyLogin(BaseView):
         result['token'] = token.key
         return self.success_response(result)
 
+
 class UploadEvaluationData(AuthView):
     def post(self, request, format=None):
         '''
@@ -113,10 +114,12 @@ class UploadEvaluationData(AuthView):
             e = Evaluation()
             e.user = user
         data = json.loads(request.body)
+        data['date'] = datetime.strptime(data.get('date', None), '%Y-%m-%d').date() or date.today()
         for k, v in data.items():
             setattr(e, k, v)
         e.save()
         return self.success_response('added')
+
 
 class DownloadEvaluationData(AuthView):
     def get(self, request, format=None):
