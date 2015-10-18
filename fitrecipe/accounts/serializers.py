@@ -47,10 +47,6 @@ class EvaluationSerializer(BaseSerializer):
     exerciseInterval = serializers.IntegerField(min_value=0, max_value=3)
     weightGoal = serializers.FloatField(min_value=0.0)
     daysToGoal = serializers.IntegerField(min_value=0)
+
     class Meta:
         model = Evaluation
-        fields = ('id', 'user', 'gender', 'age', 'height', 'weight', 'roughFat', 'preciseFat', 'jobType', 'goalType',
-                 'exerciseFrequency', 'exerciseInterval', 'weightGoal', 'daysToGoal')
-
-
-
