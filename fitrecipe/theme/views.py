@@ -34,7 +34,13 @@ class ThemeList(BaseView):
         '''
         Theme List
         '''
-        themes = Theme.objects.all()
+        num = self.request.GET.get('num', 20)
+        if num < 1:
+            num = 20
+        start = self.request.GET.get('start', 0)
+        if start < 0:
+            start = 0
+        themes = Theme.objects.all()[start:num+start]
         serializer = ThemeSerializer(themes, many=True)
         return self.success_response(serializer.data)
 
