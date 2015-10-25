@@ -1018,6 +1018,45 @@
             }
         }
 
+## Edit User Info [/api/account/edit/]
+### Edit User Info [POST]
+修改头像和昵称，传什么改什么。例如只传了头像就只改头像
+
++ Request
+
+        {
+            "avatar": "http://qiniu.com",
+            "nick_name": "xx"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "status": 200,
+            "error_message": null,
+            "data": {
+                "id": 1,
+                "user": {
+                    "nick_name": "IklsJ95379",
+                    "is_official": false,
+                    "id": 3,
+                    "avatar": "http://tp2.sinaimg.cn/1937464505/180/5708528601/1"
+                },
+                "gender": 0,
+                "age": 23,
+                "height": 173,
+                "weight": 65,
+                "roughFat": 1,
+                "preciseFat": 0.2,
+                "jobType": 1,
+                "goalType": 1,
+                "exerciseFrequency": 1,
+                "exerciseInterval": 1,
+                "weightGoal": 70,
+                "daysToGoal": 50
+            }
+        }
+
 # Group Plan
 ## Official Plan List [/api/plan/list/]
 ### Get Official Plans [GET]
