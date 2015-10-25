@@ -129,3 +129,18 @@ class DownloadEvaluationData(AuthView):
             return self.success_response(EvaluationSerializer(e).data)
         except Evaluation.DoesNotExist:
             return self.fail_response(404, 'Evaluation data cannot be found')
+
+
+class EditInfoView(AuthView):
+    def post(self, request, format=None):
+        user = Account.find_account_by_user(request.user)
+        body = json.loads(request.body)
+        avatar = body.get('avatar', None)
+        nick_name = body.get('nick_name', None)
+        if avatar is not None:
+            user.avatar = avatar
+        if nick_name is not None:
+            user.nick_name = nick_name
+            user.is_changed_nick = True
+        user.save()
+        return self.success_response(AccountSerializer(user).data)

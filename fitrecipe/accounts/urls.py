@@ -7,7 +7,7 @@
 
 from django.conf.urls import patterns, url
 
-from .views import LoginView, RegisterView, ThirdPartyLogin, UploadEvaluationData, DownloadEvaluationData
+from .views import LoginView, RegisterView, ThirdPartyLogin, UploadEvaluationData, DownloadEvaluationData, EditInfoView
 
 urlpatterns = patterns('',
     url(r'login/$', LoginView.as_view()),
@@ -15,4 +15,5 @@ urlpatterns = patterns('',
     url(r'thirdparty/$', ThirdPartyLogin.as_view()),
     url(r'upload_evaluation/$', UploadEvaluationData.as_view()),
     url(r'download_evaluation/$', DownloadEvaluationData.as_view()),
+    url(r'edit/$', EditInfoView.as_view()),
 )

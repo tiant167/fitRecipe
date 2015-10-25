@@ -553,7 +553,12 @@
         }
 
 # Group Theme
-## Theme List [/api/theme/list/]
+## Theme List [/api/theme/list/?start={start}&num={num}]
+
++ Parameters
+    + start: 0 - 开始偏移
+    + num: 20 - 数量，默认 20
+
 ### Retrieve Theme List [GET]
 获取主题列表。目前返回所有列表。列表的筛选逻辑在下一次 pull request 里做掉。
 主题列表里面不显示具体菜谱，只包含了菜谱数量。
