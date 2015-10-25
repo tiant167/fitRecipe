@@ -217,6 +217,71 @@
             ]
         }
 
+## Update List [/api/recipe/update/list?start={start}&num={num}]
+
++ Parameters
+    + start:1 {number} - 偏移，默认 0
+    + num:1 {number} - 返回数量，默认 10
+
+### Retrieve Update List [GET]
+
++ Response 200 (application/json)
+
+        {
+            "status": 200,
+            "error_message": null,
+            "data": [
+                {
+                    "id": 3,
+                    "meat_labels": [
+                        {
+                            "id": 11,
+                            "name": "猪肉",
+                            "type": "食材"
+                        }
+                    ],
+                    "time_labels": [
+                        {
+                            "id": 9,
+                            "name": "正餐",
+                            "type": "用餐时间"
+                        }
+                    ],
+                    "effect_labels": [
+                        {
+                            "id": 13,
+                            "name": "减脂",
+                            "type": "功效"
+                        }
+                    ],
+                    "other_labels": [
+                        {
+                            "id": 14,
+                            "name": "酸",
+                            "type": "其他"
+                        }
+                    ],
+                    "macro_element_ratio": "0:38:61",
+                    "total_amount": "360g",
+                    "protein_ratio": "38.38%",
+                    "fat_ratio": "61.62%",
+                    "author": null,
+                    "created_time": "2015-05-28 15:40:04",
+                    "updated_time": "2015-05-28 15:40:04",
+                    "img": "http://d.36krcnd.com/nil_class/c9d8fd96-0159-4f3c-bcea-3f33203f46c9/__.jpg",
+                    "thumbnail": "http://d.36krcnd.com/nil_class/c9d8fd96-0159-4f3c-bcea-3f33203f46c9/__.jpg",
+                    "recommend_img": null,
+                    "recommend_thumbnail": null,
+                    "title": "猪肉干",
+                    "introduce": null,
+                    "tips": null,
+                    "duration": 160,
+                    "calories": 1043.4
+                }
+            ]
+        }
+
+
 ## Search [/api/recipe/search/?keyword={keyword}&start={start}&num={num}]
 
 + Parameters

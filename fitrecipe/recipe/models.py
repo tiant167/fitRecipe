@@ -75,13 +75,12 @@ class Recipe(BaseModel):
             temp = dict()
             ingredient = dict()
             ingredient['id'] = item.ingredient.id
-            ingredient['name'] = item.ingredient.name            
+            ingredient['name'] = item.ingredient.name
             temp['ingredient'] = ingredient
             temp['amount'] = item.amount
             temp['remark'] = item.remark
             c.append(temp)
         return c
-            
 
     def get_nutrition_amount(self, data, name):
         '''
@@ -219,8 +218,8 @@ class Recipe(BaseModel):
         return recipes[start:num + start]
 
     @classmethod
-    def get_latest_recipe(cls):
-        return cls.objects.filter(status__gt=0).order_by('-updated_time')[0:10]
+    def get_latest_recipe(cls, start=0, num=10):
+        return cls.objects.filter(status__gt=0).order_by('-updated_time')[start:start+num]
 
 
 class Component(BaseModel):

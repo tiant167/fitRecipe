@@ -39,6 +39,13 @@ class RecipeList(BaseView):
         return self.success_response(serializer.data)
 
 
+class RecipeUpdateList(BaseView):
+    def get(self, request, format=None):
+        start = abs(int(request.GET.get('start', 0)))
+        num = abs(int(request.GET.get('num', 10)))
+        return self.success_response(RecipeSerializer(Recipe.get_latest_recipe(start=start, num=num), many=True).data)
+
+
 class RecipeDetail(BaseView):
     def get(self, request, pk, format=None):
         '''
