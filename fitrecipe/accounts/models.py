@@ -85,6 +85,7 @@ class Evaluation(BaseModel):
     goalType = models.IntegerField(verbose_name=u'目标', validators=[MinValueValidator(0), MaxValueValidator(1)])
     exerciseFrequency = models.IntegerField(verbose_name=u'每周运动次数')
     exerciseInterval = models.IntegerField(verbose_name=u'运动时长', validators=[MinValueValidator(0), MaxValueValidator(3)])
+    exerciseTime = models.IntegerField(verbose_name=u'运动时间')
     weightGoal = models.FloatField(verbose_name=u'目标体重', validators=MinValueValidator(0.0))
     daysToGoal = models.PositiveIntegerField(verbose_name=u'时间')
     date = models.DateField(verbose_name=u'日期')
