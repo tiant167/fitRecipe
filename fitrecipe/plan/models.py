@@ -75,8 +75,8 @@ class Dish(BaseModel):
     routine = models.ForeignKey(Routine)
 
     def get_chinese_type(self):
-        trans = [u'早餐', u'上午加餐', u'午餐', u'下午加餐', u'晚餐']
-        return trans[self.type] or u'未定义'
+        trans = [u'早餐', u'上午加餐', u'午餐', u'下午加餐', u'晚餐', u'夜宵']
+        return trans.get(self.type, u'未定义')
 
     def delete(self):
         self.singleingredient_set.all().delete()
