@@ -236,7 +236,7 @@ class DeletePunch(BaseView):
         except Punch.DoesNotExist:
             return self.fail_response(404, 'No Punch')
 
-class PlanListAndCurrent(object):
+class PlanListAndCurrent(BaseView):
     def get(self, request, format=None):
         '''
         List all plans in simple mode
