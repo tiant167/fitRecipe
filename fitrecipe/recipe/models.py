@@ -24,6 +24,7 @@ class Recipe(BaseModel):
     recommend_img = models.URLField(max_length=200, null=True, blank=True, verbose_name=u'推荐大图 URL')
     recommend_thumbnail = models.URLField(max_length=200, null=True, blank=True, verbose_name=u'推荐缩略图 URL')
     title = models.CharField(max_length=100, verbose_name=u'菜谱名称')
+    video = models.CharField(max_length=100, verbose_name=u'菜谱视频ID')
     introduce = models.TextField(null=True, blank=True, verbose_name=u'菜谱简介')
     tips = models.TextField(null=True, blank=True, verbose_name=u'菜谱小贴士')
     duration = models.IntegerField(help_text=u'分钟', verbose_name=u'烹饪时间')  # 烹饪时间

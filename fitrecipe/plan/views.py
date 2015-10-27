@@ -109,8 +109,13 @@ class CalendarList(BaseView):
         except IndexError:
             last = None
         serializer = CalendarSerializer(calendars, many=True).data
-        punchs = Punch.objects.filter(user=user, date__lte=end_date, date__gte=start_date, state__gte=10)
-        result = {'lastJoined': last, 'calendar': serializer, 'punch': PunchSerializer(punchs, many=True).data}
+        result = []
+        for c in serializer:
+            planid = c['plan']['id']
+            plan = Plan.objects.get(pk=planid)
+            result.append(plan)
+        count = Punch.objects.filter(user=user, state__gte=10)
+        result = {'lastJoined': last, 'calendar': serializer, 'punch': PunchSerializer(punchs, many=True).data, 'plans': PlanSerializer(result, many=True).data, 'count': len(count)}
         return self.success_response(result)
 
     def post(self, request, format=None):
@@ -230,3 +235,21 @@ class DeletePunch(BaseView):
             return self.success_response('ok')
         except Punch.DoesNotExist:
             return self.fail_response(404, 'No Punch')
+
+class PlanListAndCurrent(object):
+    def get(self, request, format=None):
+        '''
+        List all plans in simple mode
+        '''
+        plans = Plan.objects.filter(is_personal=False)
+        serializer = PlanSerializer(plans, many=True)
+        user = Account.find_account_by_user(request.user)
+        try:
+            c = Calendar.objects.filter(user=user, joined_date__lte=date.today()).order_by('-joined_date')[0]
+            result = {"plans": serializer.data, "current": CalendarSerializer(c).data}
+            return self.success_response(result)
+        except IndexError:
+            # new user has no plan
+            result = {"plans": serializer.data, "current": {}}
+            return self.success_response(result)
+        

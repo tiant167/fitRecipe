@@ -54,6 +54,7 @@ class Routine(BaseModel):
     一个计划的一天
     '''
     day = models.IntegerField(default=1, help_text=u'Plan 中的第几天')
+    video = models.CharField(max_length=100, default='')
     plan = models.ForeignKey(Plan)
 
     def __unicode__(self):

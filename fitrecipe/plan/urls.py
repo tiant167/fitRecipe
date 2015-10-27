@@ -6,6 +6,7 @@ from .views import PlanList, PlanDetail, CalendarList, LastPlan, PunchList, Dele
 
 urlpatterns = patterns('',
     url(r'list/$', PlanList.as_view()),
+    url(r'lists/$', PlanListAndCurrent.as_view()),
     url(r'punch/$', PunchList.as_view()),
     url(r'punch/(\d+)/delete$', DeletePunch.as_view()),
     url(r'current/$', LastPlan.as_view()),
