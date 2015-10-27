@@ -21,6 +21,7 @@ class DishInline(nested_admin.NestedStackedInline):
 class RoutineAdmin(nested_admin.NestedAdmin):
     model = Routine
     inlines = (DishInline, )
+    list_filter = ('plan__is_personal',)
 
 
 class PlanAdmin(admin.ModelAdmin):

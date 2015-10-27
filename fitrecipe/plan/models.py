@@ -77,7 +77,10 @@ class Dish(BaseModel):
 
     def get_chinese_type(self):
         trans = [u'早餐', u'上午加餐', u'午餐', u'下午加餐', u'晚餐', u'夜宵']
-        return trans.get(self.type, u'未定义')
+        try:
+            return trans[self.type]
+        except IndexError:
+            return u'未定义'
 
     def delete(self):
         self.singleingredient_set.all().delete()
