@@ -105,18 +105,22 @@ class CalendarList(BaseView):
         calendars = Calendar.objects.filter(user=user, joined_date__gte=start_date, joined_date__lte=end_date)
         try:
             last_joined = Calendar.objects.filter(user=user, joined_date__lte=start_date).order_by('-joined_date')[0]
-            last = CalendarSerializer(last_joined).data
+            last = CalendarSerializer(last_joined, context={'simple': False}).data
         except IndexError:
             last = None
-        serializer = CalendarSerializer(calendars, many=True).data
+        serializer = CalendarSerializer(calendars, many=True, context={'simple': False}).data
         plans = []
         for c in serializer:
-            planid = c['plan']['id']
-            plan = Plan.objects.get(pk=planid)
-            plans.append(plan)            
+            plans.append(c['plan'])
         punchs = Punch.objects.filter(user=user, date__lte=end_date, date__gte=start_date, state__gte=10)
         count = Punch.objects.filter(user=user, state__gte=10)
-        result = {'lastJoined': last, 'calendar': serializer, 'punch': PunchSerializer(punchs, many=True).data, 'plans': PlanSerializer(plans, many=True).data, 'count': len(count)}
+        result = {
+            'lastJoined': last,
+            'calendar': serializer,
+            'punch': PunchSerializer(punchs, many=True).data,
+            'plans': plans,
+            'count': len(count)
+        }
         return self.success_response(result)
 
     def post(self, request, format=None):
@@ -253,4 +257,4 @@ class PlanListAndCurrent(BaseView):
             # new user has no plan
             result = {"plans": serializer.data, "current": {}}
             return self.success_response(result)
-        
+
