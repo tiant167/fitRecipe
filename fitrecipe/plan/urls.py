@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import patterns, url
 
-from .views import PlanList, PlanDetail, CalendarList, LastPlan, PunchList, DeletePunch
+from .views import PlanList, PlanDetail, CalendarList, LastPlan, PunchList, DeletePunch, PlanListAndCurrent
 
 urlpatterns = patterns('',
     url(r'list/$', PlanList.as_view()),
