@@ -116,7 +116,7 @@ class CalendarList(BaseView):
             plans.append(plan)            
         punchs = Punch.objects.filter(user=user, date__lte=end_date, date__gte=start_date, state__gte=10)
         count = Punch.objects.filter(user=user, state__gte=10)
-        result = {'lastJoined': last, 'calendar': serializer, 'punch': PunchSerializer(punchs, many=True).data, 'plans': PlanSerializer(plans, many=True).data, 'count': len(count)}
+        result = {'lastJoined': last, 'calendar': serializer, 'punch': PunchSerializer(punchs, many=True).data, 'plans': PlanSerializer(plans, context={'simple': False}, many=True).data, 'count': len(count)}
         return self.success_response(result)
 
     def post(self, request, format=None):
