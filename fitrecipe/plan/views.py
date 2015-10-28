@@ -87,10 +87,18 @@ class PlanDetail(BaseView):
     def get(self, request, plan_id, format=None):
         '''
         get detail info
-        '''
+        '''        
+        start_time = time.time()
         plan = Plan.objects.get(pk=plan_id)
+        time_array.append(time.time() - start_time)
         serializer = PlanSerializer(plan, context={'simple': False})
-        return self.success_response(serializer.data)
+        time_array.append(time.time() - start_time)
+        result = {
+            'data': serializer.data
+            'time': time_array
+        }
+        return self.success_response(result)
+        # return self.success_response(serializer.data)
 
 
 class CalendarList(BaseView):
