@@ -233,7 +233,9 @@ class PunchList(BaseView):
         result = []
         for p in punchs:
             planid, day = get_planid(p, calendar_list)
-            result.append(planid)
+            # test begin
+            result.append(PunchSerializer(p).data)
+            # test finish
             # plan = Plan.objects.get(pk=planid)
             # current_day_count = day % plan.total_days
             # if current_day_count == 0:
