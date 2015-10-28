@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import json
+import time
 from django.db import IntegrityError
 from base.views import BaseView
 from .models import Plan, Calendar, Routine, Dish, SingleIngredient, SingleRecipe, Punch
@@ -103,6 +104,7 @@ class CalendarList(BaseView):
         start_date = turn_to_date(request.GET.get('start', None))
         end_date = turn_to_date(request.GET.get('end', None))
         calendars = Calendar.objects.filter(user=user, joined_date__gte=start_date, joined_date__lte=end_date)
+        start_time = time.time()
         try:
             last_joined = Calendar.objects.filter(user=user, joined_date__lte=start_date).order_by('-joined_date')[0]
             last = CalendarSerializer(last_joined, context={'simple': False}).data
@@ -114,12 +116,14 @@ class CalendarList(BaseView):
             plans.append(c['plan'])
         punchs = Punch.objects.filter(user=user, date__lte=end_date, date__gte=start_date, state__gte=10)
         count = Punch.objects.filter(user=user, state__gte=10)
+        consume_time = time.time() - start_time
         result = {
             'lastJoined': last,
             'calendar': serializer,
             'punch': PunchSerializer(punchs, many=True).data,
             'plans': plans,
-            'count': len(count)
+            'count': len(count),
+            'time' : consume_time
         }
         return self.success_response(result)
 
