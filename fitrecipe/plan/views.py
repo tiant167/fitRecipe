@@ -94,7 +94,7 @@ class PlanDetail(BaseView):
         serializer = PlanSerializer(plan, context={'simple': False})
         time_array.append(time.time() - start_time)
         result = {
-            'data': serializer.data
+            'data': serializer.data,
             'time': time_array
         }
         return self.success_response(result)
