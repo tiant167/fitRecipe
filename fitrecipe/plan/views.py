@@ -98,8 +98,8 @@ class PlanDetail(BaseView):
             'data': serializer.data,
             'time': time_array
         }
-        return self.success_response(result)
-        # return self.success_response(serializer.data)
+        #return self.success_response(result)
+        return self.success_response(serializer.data)
 
 
 class CalendarList(BaseView):
@@ -142,8 +142,8 @@ class CalendarList(BaseView):
             'calendar': serializer,
             'punch': PunchSerializer(punchs, many=True).data,
             'plans': plans,
-            'count': len(count),
-            'time' : time_array
+            'count': len(count)
+            #'time' : time_array
         }
         return self.success_response(result)
 
