@@ -248,27 +248,27 @@ class PunchList(BaseView):
         for p in punchs:
             planid, day = get_planid(p, calendar_list)
             # test begin
-            temp = {
-                'punch': PunchSerializer(p).data,
-                'planid': planid,
-                'day': day
-            }
-            result.append(temp)
+            # temp = {
+            #     'punch': PunchSerializer(p).data,
+            #     'planid': planid,
+            #     'day': day
+            # }
+            # result.append(temp)
             # test finish
-            # plan = Plan.objects.get(pk=planid)
-            # current_day_count = day % plan.total_days
-            # if current_day_count == 0:
-            #     current_day_count = plan.total_days
-            # dish = plan.routine_set.get(day=current_day_count).dish_set.get(type=p.type)
-            # p_json = PunchSerializer(p).data
-            # p_json['dish'] = DishSerializer(dish, context={'simple': False}).data
-            # result.append(p_json)
-        result_5 = {
-            'record': result,
-            'calendar': calendar_list
-        }
-        return self.success_response(result_5)
-        #return self.success_response(result)
+            plan = Plan.objects.get(pk=planid)
+            current_day_count = day % plan.total_days
+            if current_day_count == 0:
+                current_day_count = plan.total_days
+            dish = plan.routine_set.get(day=current_day_count).dish_set.get(type=p.type)
+            p_json = PunchSerializer(p).data
+            p_json['dish'] = DishSerializer(dish, context={'simple': False}).data
+            result.append(p_json)
+        # result_5 = {
+        #     'record': result,
+        #     'calendar': calendar_list
+        # }
+        #return self.success_response(result_5)
+        return self.success_response(result)
 
     def post(self, request, format=None):
         user = Account.find_account_by_user(request.user)
