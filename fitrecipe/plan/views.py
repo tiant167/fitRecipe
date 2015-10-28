@@ -198,6 +198,19 @@ class LastPlan(BaseView):
             return self.success_response({})
 
 
+class PunchSize(BaseView):
+    """docstring for PunchSize"""
+    def get(self, request, format=None):
+        user = Account.find_account_by_user(request.user)
+        try:
+            count = Punch.objects.filter(user=user, state__gte=10)
+            return self.success_response({'count': len(count)})
+        except IndexError:
+            # new user has no plan
+            return self.success_response({'count': 0})
+        
+
+
 class PunchList(BaseView):
     '''
     打卡
