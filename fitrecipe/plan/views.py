@@ -99,12 +99,12 @@ class CalendarList(BaseView):
         '''
         get my calendar
         '''
+        start_time = time.time()
         user = Account.find_account_by_user(request.user)
         turn_to_date = lambda x: x and datetime.strptime(x, '%Y%m%d') or date.today()
         start_date = turn_to_date(request.GET.get('start', None))
         end_date = turn_to_date(request.GET.get('end', None))
         calendars = Calendar.objects.filter(user=user, joined_date__gte=start_date, joined_date__lte=end_date)
-        start_time = time.time()
         try:
             last_joined = Calendar.objects.filter(user=user, joined_date__lte=start_date).order_by('-joined_date')[0]
             last = CalendarSerializer(last_joined, context={'simple': False}).data
