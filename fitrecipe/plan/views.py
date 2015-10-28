@@ -87,7 +87,8 @@ class PlanDetail(BaseView):
     def get(self, request, plan_id, format=None):
         '''
         get detail info
-        '''        
+        '''
+        time_array = []        
         start_time = time.time()
         plan = Plan.objects.get(pk=plan_id)
         time_array.append(time.time() - start_time)
