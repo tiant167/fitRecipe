@@ -268,7 +268,8 @@ class PunchList(BaseView):
         #     'calendar': calendar_list
         # }
         #return self.success_response(result_5)
-        return self.success_response(result)
+        count = Punch.objects.filter(user=user, state__gte=10)        
+        return self.success_response({'punchs': result, 'count': len(count)})
 
     def post(self, request, format=None):
         user = Account.find_account_by_user(request.user)
