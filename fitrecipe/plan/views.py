@@ -76,6 +76,8 @@ class PlanList(BaseView):
                     c.save()
             except Calendar.DoesNotExist:
                 Calendar.objects.create(user=user, plan=p, joined_date=joined_date)
+            # delete todays punch
+            Punch.objects.filter(user=user, date=date.today()).update(state=-10)
             return self.success_response(PlanSerializer(p).data)
         except:
             return self.fail_response(400, 'fail')
@@ -105,7 +107,7 @@ class CalendarList(BaseView):
         calendars = Calendar.objects.filter(user=user, joined_date__gte=start_date, joined_date__lte=end_date)
         try:
             last_joined = Calendar.objects.filter(user=user, joined_date__lte=start_date).order_by('-joined_date')[0]
-            last = CalendarSerializer(last_joined, context={'simple': False}).data
+            last = CalendarSerializer(last_joined).data
         except IndexError:
             last = None
         serializer = CalendarSerializer(calendars, many=True, context={'simple': False}).data
@@ -157,6 +159,8 @@ class CalendarList(BaseView):
         if not p.is_personal:
             # official plan should clean all plan after
             Calendar.objects.filter(user=user, joined_date__gt=joined_date).delete()
+        # join should clean punch of today
+        Punch.objects.filter(user=user, date=date.today()).update(state=-10)
         return self.success_response('ok')
 
 
