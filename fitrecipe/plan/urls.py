@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import patterns, url
 
-from .views import PlanList, PlanDetail, CalendarList, LastPlan, PunchList, DeletePunch, PlanListAndCurrent
+from .views import PlanList, PlanDetail, CalendarList, LastPlan, PunchList, PunchSize, DeletePunch, PlanListAndCurrent
 
 urlpatterns = patterns('',
     url(r'list/$', PlanList.as_view()),
     url(r'lists/$', PlanListAndCurrent.as_view()),
     url(r'punch/$', PunchList.as_view()),
+    url(r'count/$', PunchSize.as_view()),
     url(r'punch/(\d+)/delete$', DeletePunch.as_view()),
     url(r'current/$', LastPlan.as_view()),
     url(r'calendar/$', CalendarList.as_view()),

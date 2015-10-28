@@ -178,6 +178,16 @@ class LastPlan(BaseView):
             return self.success_response({})
 
 
+class PunchSize(BaseView):
+    '''
+    docstring for PunchSize
+    '''
+    def get(self, request, format=None):
+        user = Account.find_account_by_user(request.user)
+        count = Punch.objects.filter(user=user, state__gte=10).count()
+        return self.success_response({'count': count})
+
+
 class PunchList(BaseView):
     '''
     打卡
@@ -186,14 +196,13 @@ class PunchList(BaseView):
         def get_planid(punch, calendar_list):
             temp_storage = None
             for c in calendar_list:
-                if c['joined_date'] < p.date:
-                    day = p.date - c['joined_date']
-                    return (temp_storage, day.days)
-                elif c['joined_date'] == p.date:
+                if punch.date > c['joined_date']:
+                    day = punch.date - c['joined_date']
+                    return (c['plan'], day.days)
+                elif punch.date == c['joined_date']:
                     return (c['plan'], 1)
                 else:
-                    # >
-                    temp_storage = c['plan']
+                    temp_storage = None
             return (None, 0)
 
         user = Account.find_account_by_user(request.user)
@@ -204,13 +213,14 @@ class PunchList(BaseView):
         calendars = Calendar.objects.filter(user=user, joined_date__lte=end_date, joined_date__gte=start_date).order_by('joined_date') # asc
         # get all calendar
         try:
-            last_calendar = Calendar.objects.filter(user=user, joined_date__lte=date.today()).order_by('-joined_date')[0]
+            last_calendar = Calendar.objects.filter(user=user, joined_date__lte=start_date).order_by('-joined_date')[0]
             calendar_list = [{'joined_date': last_calendar.joined_date, 'plan': last_calendar.plan.id}]
         except IndexError:
             calendar_list = []
         for c in calendars:
             calendar_list.append({'joined_date': c.joined_date, 'plan': c.plan.id})
         result = []
+        calendar_list.reverse()
         for p in punchs:
             planid, day = get_planid(p, calendar_list)
             plan = Plan.objects.get(pk=planid)
@@ -221,7 +231,8 @@ class PunchList(BaseView):
             p_json = PunchSerializer(p).data
             p_json['dish'] = DishSerializer(dish, context={'simple': False}).data
             result.append(p_json)
-        return self.success_response(result)
+        count = Punch.objects.filter(user=user, state__gte=10).count()
+        return self.success_response({'punchs': result, 'count': count})
 
     def post(self, request, format=None):
         user = Account.find_account_by_user(request.user)
@@ -244,6 +255,7 @@ class DeletePunch(BaseView):
             return self.success_response('ok')
         except Punch.DoesNotExist:
             return self.fail_response(404, 'No Punch')
+
 
 class PlanListAndCurrent(BaseView):
     def get(self, request, format=None):
