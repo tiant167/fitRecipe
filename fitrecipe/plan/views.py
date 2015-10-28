@@ -99,31 +99,42 @@ class CalendarList(BaseView):
         '''
         get my calendar
         '''
+        time_array = []
         start_time = time.time()
         user = Account.find_account_by_user(request.user)
+        time_array.append(time.time() - start_time)
         turn_to_date = lambda x: x and datetime.strptime(x, '%Y%m%d') or date.today()
+        time_array.append(time.time() - start_time)
         start_date = turn_to_date(request.GET.get('start', None))
+        time_array.append(time.time() - start_time)
         end_date = turn_to_date(request.GET.get('end', None))
+        time_array.append(time.time() - start_time)
         calendars = Calendar.objects.filter(user=user, joined_date__gte=start_date, joined_date__lte=end_date)
+        time_array.append(time.time() - start_time)
         try:
             last_joined = Calendar.objects.filter(user=user, joined_date__lte=start_date).order_by('-joined_date')[0]
+            time_array.append(time.time() - start_time)
             last = CalendarSerializer(last_joined, context={'simple': False}).data
+            time_array.append(time.time() - start_time)
         except IndexError:
             last = None
         serializer = CalendarSerializer(calendars, many=True, context={'simple': False}).data
+        time_array.append(time.time() - start_time)
         plans = []
         for c in serializer:
             plans.append(c['plan'])
+        time_array.append(time.time() - start_time)
         punchs = Punch.objects.filter(user=user, date__lte=end_date, date__gte=start_date, state__gte=10)
+        time_array.append(time.time() - start_time)
         count = Punch.objects.filter(user=user, state__gte=10)
-        consume_time = time.time() - start_time
+        time_array.append(time.time() - start_time)
         result = {
             'lastJoined': last,
             'calendar': serializer,
             'punch': PunchSerializer(punchs, many=True).data,
             'plans': plans,
             'count': len(count),
-            'time' : consume_time
+            'time' : time_array
         }
         return self.success_response(result)
 
