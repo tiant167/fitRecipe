@@ -22,7 +22,7 @@ class Account(User):
     phone 注册用的手机号，唯一
     '''
     phone = models.CharField(max_length=30, null=True, unique=True)
-    avatar = models.URLField(max_length=200, default='http://tp2.sinaimg.cn/1937464505/180/5708528601/1')
+    avatar = models.URLField(max_length=200, default='http://7xk6xp.com1.z0.glb.clouddn.com/default_header.png')
     nick_name = models.CharField(max_length=100)
     is_changed_nick = models.BooleanField(default=False)
     is_official = models.BooleanField(default=False)

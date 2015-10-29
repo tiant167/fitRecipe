@@ -24,9 +24,11 @@ class HomepageRecommends(BaseView):
           series_json = SeriesSerializer(item.series).data
           series_json['recommendtype'] = 2
           recommend.append(series_json)
+        theme = [ThemeSerializer(t.theme).data for t in RecommendTheme.objects.all()]
+        update = RecipeSerializer(Recipe.get_latest_recipe(), many=True).data 
         result = {
             'recommend': recommend,
-            'theme': [ThemeSerializer(t.theme).data for t in RecommendTheme.objects.all()],
-            'update': RecipeSerializer(Recipe.get_latest_recipe(), many=True).data,
+            'theme': theme,
+            'update': update
             }
         return self.success_response(result)
