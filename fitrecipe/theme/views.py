@@ -24,8 +24,8 @@ class ThemeDetail(BaseView):
             user = Account.find_account_by_user(request.user)
             has_collected = ThemeCollection.has_collected(theme, user)
         except Account.DoesNotExist:
-            has_collected = False
-        result['has_collected'] = has_collected
+            has_collected = (False, -1)
+        result['has_collected'], result['collect_id'] = has_collected
         return self.success_response(result)
 
 

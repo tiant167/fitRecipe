@@ -56,11 +56,11 @@ class RecipeDetail(BaseView):
             user = Account.find_account_by_user(request.user)
             has_collected = RecipeCollection.has_collected(recipe, user)
         except Account.DoesNotExist:
-            has_collected = False
+            has_collected = (False, -1)
         if recipe.status > 0:
             serializer = RecipeSerializer(recipe, context={'simple': False})
             result = serializer.data
-            result['has_collected'] = has_collected
+            result['has_collected'], result['collect_id'] = has_collected
             result['comment_count'] = recipe.comment_set.count()
             return self.success_response(result)
         else:
