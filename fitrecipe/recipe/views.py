@@ -121,4 +121,3 @@ class FoodSearch(BaseView):
         i = Ingredient.objects.filter(name__contains=keyword)
         result = pick_data(r, 1) + pick_data(i, 0)
         return self.success_response(result[start: start + num])
-
