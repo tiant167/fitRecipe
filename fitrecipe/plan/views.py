@@ -107,7 +107,8 @@ class CalendarList(BaseView):
         calendars = Calendar.objects.filter(user=user, joined_date__gte=start_date, joined_date__lte=end_date)
         try:
             last_joined = Calendar.objects.filter(user=user, joined_date__lte=start_date).order_by('-joined_date')[0]
-            last = CalendarSerializer(last_joined).data
+            last = CalendarSerializer(last_joined, context={'simple': False}).data
+            plans.append(c['plan'])
         except IndexError:
             last = None
         serializer = CalendarSerializer(calendars, many=True, context={'simple': False}).data

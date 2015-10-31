@@ -30,10 +30,10 @@ class RecipeCollection(Collection):
     @classmethod
     def has_collected(cls, recipe, user):
         try:
-            cls.objects.get(recipe=recipe, owner=user)
-            return True
+            obj = cls.objects.get(recipe=recipe, owner=user, status__gt=0)
+            return (True, obj.id)
         except RecipeCollection.DoesNotExist:
-            return False
+            return (False, -1)
 
 class SeriesCollection(Collection):
     series = models.ForeignKey(Series)
@@ -61,7 +61,7 @@ class ThemeCollection(Collection):
     @classmethod
     def has_collected(cls, theme, user):
         try:
-            cls.objects.get(theme=theme, owner=user)
-            return True
+            obj = cls.objects.get(theme=theme, owner=user, status__gt=0)
+            return (True, obj.id)
         except ThemeCollection.DoesNotExist:
-            return False
+            return (False, -1)
