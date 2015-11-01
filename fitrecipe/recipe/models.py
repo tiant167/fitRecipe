@@ -58,7 +58,7 @@ class Recipe(BaseModel):
     def get_nutrition(self):
         r = dict()
         total_amount = 0.0
-        for item in self.component_set.all():
+        for item in self.component_set.select_related('ingredient').all():
             c_amount = item.amount
             total_amount += c_amount
             for n in item.ingredient.nutrition_set.all():
