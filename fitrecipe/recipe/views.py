@@ -4,9 +4,9 @@
 # @Date:   2015-04-26 15:44:45
 # @Last Modified by:   chaihaotian
 # @Last Modified time: 2015-07-25 16:47:11
-
+from django.db.models import Prefetch
 from base.views import BaseView
-from .models import Recipe, Ingredient
+from .models import Recipe, Ingredient, Component
 from accounts.models import Account
 from collection.models import RecipeCollection
 from .serializers import RecipeSerializer, IngredientSerializer
@@ -54,7 +54,7 @@ class RecipeDetail(BaseView):
         recipe = (Recipe.objects
             .select_related('author')
             .prefetch_related('comment_set')
-            .prefetch_related('component_set')
+            .prefetch_related(Prefetch('component_set', queryset=Component.objects.select_related('ingredient')))
             .prefetch_related('procedure_set')
             .prefetch_related('time_labels')
             .prefetch_related('meat_labels')

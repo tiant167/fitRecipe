@@ -220,7 +220,17 @@ class Recipe(BaseModel):
 
     @classmethod
     def get_latest_recipe(cls, start=0, num=10):
-        return cls.objects.filter(status__gt=0).order_by('-updated_time')[start:start+num]
+        return (cls.objects
+            .select_related('author')
+            .filter(status__gt=0)
+            .prefetch_related('comment_set')
+            .prefetch_related(models.Prefetch('component_set', queryset=Component.objects.select_related('ingredient')))
+            .prefetch_related('procedure_set')
+            .prefetch_related('time_labels')
+            .prefetch_related('meat_labels')
+            .prefetch_related('effect_labels')
+            .prefetch_related('other_labels')
+            .order_by('-updated_time')[start:start+num])
 
 
 class Component(BaseModel):
