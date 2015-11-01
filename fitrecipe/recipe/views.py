@@ -51,7 +51,16 @@ class RecipeDetail(BaseView):
         '''
         return a specific recipe.
         '''
-        recipe = self.get_object(Recipe, pk)
+        recipe = (Recipe.objects
+            .select_related('author')
+            .prefetch_related('comment_set')
+            .prefetch_related('component_set')
+            .prefetch_related('procedure_set')
+            .prefetch_related('time_labels')
+            .prefetch_related('meat_labels')
+            .prefetch_related('effect_labels')
+            .prefetch_related('other_labels')
+            .get(pk=pk))
         try:
             user = Account.find_account_by_user(request.user)
             has_collected = RecipeCollection.has_collected(recipe, user)
