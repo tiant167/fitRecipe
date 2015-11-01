@@ -8,6 +8,7 @@ from recipe.models import Recipe, Ingredient
 from .serializers import PlanSerializer, CalendarSerializer, PunchSerializer, DishSerializer
 from accounts.models import Account
 from datetime import date, datetime
+from collection.models import RecipeCollection
 # Create your views here.
 class PlanList(BaseView):
 
@@ -104,15 +105,15 @@ class CalendarList(BaseView):
         turn_to_date = lambda x: x and datetime.strptime(x, '%Y%m%d') or date.today()
         start_date = turn_to_date(request.GET.get('start', None))
         end_date = turn_to_date(request.GET.get('end', None))
-        calendars = Calendar.objects.filter(user=user, joined_date__gte=start_date, joined_date__lte=end_date)
+        calendars = Calendar.objects.filter(user=user, joined_date__gte=start_date, joined_date__lte=end_date)        
+        plans = []
         try:
             last_joined = Calendar.objects.filter(user=user, joined_date__lte=start_date).order_by('-joined_date')[0]
             last = CalendarSerializer(last_joined, context={'simple': False}).data
-            plans.append(c['plan'])
+            plans.append(last['plan'])
         except IndexError:
             last = None
         serializer = CalendarSerializer(calendars, many=True, context={'simple': False}).data
-        plans = []
         for c in serializer:
             plans.append(c['plan'])
         punchs = Punch.objects.filter(user=user, date__lte=end_date, date__gte=start_date, state__gte=10)
@@ -185,8 +186,9 @@ class PunchSize(BaseView):
     '''
     def get(self, request, format=None):
         user = Account.find_account_by_user(request.user)
-        count = Punch.objects.filter(user=user, state__gte=10).count()
-        return self.success_response({'count': count})
+        count_punch = Punch.objects.filter(user=user, state__gte=10).count()
+        count_recipe = RecipeCollection.objects.filter(owner=user, status__gte=0).count()
+        return self.success_response({'count': count_punch, 'recipe': count_recipe})
 
 
 class PunchList(BaseView):
