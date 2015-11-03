@@ -200,6 +200,8 @@ class Recipe(BaseModel):
             print recipes
         if order == 'duration':
             recipes = recipes.order_by('duration')
+        elif order == 'collection':
+            recipes = recipes.order_by('collection_count')
         else:
             # 还有按照收藏数的排序，不过现在还没做
             # 默认按照卡路里
