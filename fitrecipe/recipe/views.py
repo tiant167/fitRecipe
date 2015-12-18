@@ -5,18 +5,16 @@
 # @Last Modified by:   chaihaotian
 # @Last Modified time: 2015-07-25 16:47:11
 from django.db.models import Prefetch
+from django.db.models import Q
 from base.views import BaseView
-from .models import Recipe, Ingredient, Component
+from .models import Recipe, Ingredient
 from accounts.models import Account
 from collection.models import RecipeCollection
 from .serializers import RecipeSerializer, IngredientSerializer
+from comment.serializers import CommentSerializer
 from label.models import Label
 from fitrecipe.utils import pick_data
 # Create your views here.
-
-class SystemCheck(BaseView):
-    def head(self, request, format=None):
-        return self.success_response('Good')
 
 class RecipeList(BaseView):
 
@@ -24,17 +22,15 @@ class RecipeList(BaseView):
         '''
         List all recipes
 
-        category=1,2&funtion=3,4&time=5,6&start=10&num=10&order
+        labels=1,2,3,4&start=10&num=10&order
         '''
-        meat_labels = request.GET.get('meat', None)  # meat_labels
-        effect_labels = request.GET.get('effect', None)  # effect_labels
-        time_labels = request.GET.get('time', None)
+        labels = request.GET.get('labels', None)
         start = request.GET.get('start', '0')
         num = request.GET.get('num', '10')
         order = request.GET.get('order', 'calories')
         desc = request.GET.get('desc', 'false')
         # https://docs.djangoproject.com/en/1.8/ref/models/querysets/#when-querysets-are-evaluated
-        recipes = Recipe.get_recipe_list(meat_labels, effect_labels, time_labels, order, desc, start, num)
+        recipes = Recipe.get_recipe_list(labels, order, desc, start, num)
         serializer = RecipeSerializer(recipes, many=True)
         return self.success_response(serializer.data)
 
@@ -51,16 +47,7 @@ class RecipeDetail(BaseView):
         '''
         return a specific recipe.
         '''
-        recipe = (Recipe.objects
-            .select_related('author')
-            .prefetch_related('comment_set')
-            .prefetch_related(Prefetch('component_set', queryset=Component.objects.select_related('ingredient')))
-            .prefetch_related('procedure_set')
-            .prefetch_related('time_labels')
-            .prefetch_related('meat_labels')
-            .prefetch_related('effect_labels')
-            .prefetch_related('other_labels')
-            .get(pk=pk))
+        recipe = Recipe.objects.select_related('author').get(pk=pk)
         try:
             user = Account.find_account_by_user(request.user)
             has_collected = RecipeCollection.has_collected(recipe, user)
@@ -70,6 +57,7 @@ class RecipeDetail(BaseView):
             serializer = RecipeSerializer(recipe, context={'simple': False})
             result = serializer.data
             result['has_collected'], result['collect_id'] = has_collected
+            result['comment_set'] = CommentSerializer(recipe.comment_set.order_by('-created_time')[0:20], many=True).data
             result['comment_count'] = recipe.comment_set.count()
             return self.success_response(result)
         else:
@@ -86,21 +74,8 @@ class RecipeSearch(BaseView):
         num = abs(int(request.GET.get('num', 10)))
         if keyword is None:
             return self.success_response([])
-        r = Recipe.objects.filter(status__gt=0, title__contains=keyword)
-        labels = Label.objects.filter(name__contains=keyword)
-        tag_list = []
-        for l in labels:
-            if l.type == u'功效':
-                tag_list = tag_list + list(l.effect_set.filter(status__gt=0).all())
-            elif l.type == u'用餐时间':
-                tag_list = tag_list + list(l.time_set.filter(status__gt=0).all())
-            elif l.type == u'食材':
-                tag_list = tag_list + list(l.meat_set.filter(status__gt=0).all())
-            elif l.type == u'其他':
-                tag_list = tag_list + list(l.other_set.filter(status__gt=0).all())
-        tag_list = list(set(tag_list).difference(set(r)))
-        final = list(r) + tag_list
-        return self.success_response(RecipeSerializer(final[start: start + num], many=True).data)
+        r = Recipe.objects.filter(Q(status__gt=0) & (Q(title__contains=keyword) | Q(label__name__contains=keyword)))
+        return self.success_response(RecipeSerializer(r[start: start + num], many=True).data)
 
 
 class IngredientSearch(BaseView):
@@ -115,6 +90,7 @@ class IngredientSearch(BaseView):
             return self.success_response([])
         ingredients = Ingredient.objects.filter(name__contains=keyword)
         return self.success_response(IngredientSerializer(ingredients, many=True).data)
+
 
 class FoodSearch(BaseView):
     def get(self, request, format=None):

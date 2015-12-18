@@ -41,78 +41,28 @@ class Plan(BaseModel):
     user = models.ForeignKey(Account, null=True, blank=True)
     is_personal = models.BooleanField(default=True)
     authored_date = models.DateField(auto_now_add=True)
+    routines = models.TextField(default='[]', help_text=u'''<code>
+        [{
+          "video": "http://video.url",
+          "dish": [{
+            "type": 0,
+            "ingredient": [{
+              "amount": 50,
+              "id": 2
+            }],
+            "recipe": [{
+              "amount": 50,
+              "id": 4
+            }]
+          }]
+        }]
+    </code>''')
 
     def __unicode__(self):
         return self.title
 
     def delete_routines(self):
         self.routine_set.all().delete()
-
-
-class Routine(BaseModel):
-    '''
-    一个计划的一天
-    '''
-    day = models.IntegerField(default=1, help_text=u'Plan 中的第几天')
-    video = models.CharField(max_length=100, default='')
-    plan = models.ForeignKey(Plan)
-
-    def __unicode__(self):
-        try:
-            return u'%s - %s' % (self.plan.title, self.day)
-        except Plan.DoesNotExist:
-            return u'nothing'
-
-    def delete(self):
-        self.dish_set.all().delete()
-        super(Routine, self).delete()
-
-
-class Dish(BaseModel):
-    '''
-    每一顿吃的，早餐午餐啥的
-    '''
-    type = models.IntegerField(help_text=u'0-早餐 1-上午加餐 2-午餐 3-下午加餐 5-晚餐')
-    routine = models.ForeignKey(Routine)
-
-    def get_chinese_type(self):
-        trans = [u'早餐', u'上午加餐', u'午餐', u'下午加餐', u'晚餐', u'夜宵']
-        try:
-            return trans[self.type]
-        except IndexError:
-            return u'未定义'
-
-    def delete(self):
-        self.singleingredient_set.all().delete()
-        self.singlerecipe_set.all().delete()
-        super(Dish, self).delete()
-
-    def __unicode__(self):
-        return u'%s 的 %s' % (str(self.routine), self.get_chinese_type())
-
-
-class SingleIngredient(BaseModel):
-    '''
-    单个食材
-    '''
-    ingredient = models.ForeignKey(Ingredient)
-    amount = models.IntegerField()  # 单位都是g
-    dish = models.ForeignKey(Dish)
-
-    def __unicode__(self):
-        return u'%dg %s' % (self.amount, self.ingredient.name)
-
-
-class SingleRecipe(BaseModel):
-    '''
-    单个菜谱
-    '''
-    recipe = models.ForeignKey(Recipe)
-    amount = models.IntegerField()
-    dish = models.ForeignKey(Dish)
-
-    def __unicode__(self):
-        return '%dg %s' % (self.amount, self.recipe.title)
 
 
 class Calendar(BaseModel):

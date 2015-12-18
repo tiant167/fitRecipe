@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
 from rest_framework import serializers
 from base.serializers import BaseSerializer
-from .models import PlanAuthor, Plan, Dish, Routine, SingleIngredient, SingleRecipe, Calendar, Punch
+from recipe.models import Recipe, Ingredient
+from .models import PlanAuthor, Plan, Calendar, Punch
 from recipe.serializers import RecipeSerializer, IngredientSerializer
 
 
@@ -13,38 +15,7 @@ class PlanAuthorSerializer(BaseSerializer):
         model = PlanAuthor
 
 
-class SingleIngredientSerializer(BaseSerializer):
-    ingredient = IngredientSerializer()
-
-    class Meta:
-        model = SingleIngredient
-
-
-class SingleRecipeSerializer(BaseSerializer):
-    recipe = RecipeSerializer(value=('id', 'nutrition_set', 'img', 'title', 'duration', 'calories', 'component_set'))
-
-    class Meta:
-        model = SingleRecipe
-
-
-
-class DishSerializer(BaseSerializer):
-    singleingredient_set = SingleIngredientSerializer(many=True)
-    singlerecipe_set = SingleRecipeSerializer(many=True)
-
-    class Meta:
-        model = Dish
-
-
-class RoutineSerializer(BaseSerializer):
-    dish_set = DishSerializer(many=True)
-
-    class Meta:
-        model = Routine
-
-
 class PlanSerializer(BaseSerializer):
-    routine_set = RoutineSerializer(many=True)
     author = PlanAuthorSerializer()
 
     class Meta:
@@ -58,9 +29,25 @@ class PlanSerializer(BaseSerializer):
         simple = self.context.get('simple', True)
         if simple:
             # 去掉 component_set, procedure_set, nutrition_set
-            pop_keys = ('routine_set',)
+            pop_keys = ('routines',)
             for k in pop_keys:
                 r.pop(k, None)
+        else:
+            r['routines'] = json.loads(r['routines'] or '[]')
+            # populate recipe & ingredient
+            # TODO: 这里可以做 prefect
+            for item in r['routines']:
+                for d in item['dish']:
+                    for recipe in d['recipe']:
+                        try:
+                            recipe['content'] = RecipeSerializer(Recipe.objects.get(pk=recipe['id'])).data
+                        except Recipe.DoesNotExist:
+                            recipe['content'] = None
+                    for ingredient in d['ingredient']:
+                        try:
+                            ingredient['content'] = IngredientSerializer(Ingredient.objects.get(pk=ingredient['id'])).data
+                        except Ingredient.DoesNotExist:
+                            ingredient['content'] = None
         return r
 
 
