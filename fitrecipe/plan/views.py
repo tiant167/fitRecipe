@@ -227,7 +227,8 @@ class PunchList(BaseView):
             current_day_count = day % plan.total_days
             if current_day_count == 0:
                 current_day_count = plan.total_days
-            dish = json.loads(plan.routines)[current_day_count]['dish']
+            # 从1开始计数的
+            dish = json.loads(plan.routines)[current_day_count-1]['dish']
             p_json = PunchSerializer(p).data
             p_json['dish'] = [item for item in dish if item['type'] == p.type]
             result.append(p_json)
