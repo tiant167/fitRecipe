@@ -3,9 +3,9 @@
 import json
 from django.db import IntegrityError
 from base.views import BaseView
-from .models import Plan, Calendar, Routine, Dish, SingleIngredient, SingleRecipe, Punch
+from .models import Plan, Calendar, Punch
 from recipe.models import Recipe, Ingredient
-from .serializers import PlanSerializer, CalendarSerializer, PunchSerializer, DishSerializer
+from .serializers import PlanSerializer, CalendarSerializer, PunchSerializer
 from accounts.models import Account
 from datetime import date, datetime
 from collection.models import RecipeCollection
@@ -54,21 +54,14 @@ class PlanList(BaseView):
             except:
                 joined_date = date.today()
             planid = body.get('id', None)
+            routines = [{'video': None, 'dish': body.get('dish', [])}]
             if planid is None:
                 # create
-                p = Plan.objects.create(user=user)
+                p = Plan.objects.create(user=user, routines= json.dumps(routines))
             else :
                 p = Plan.objects.get(user=user, pk=planid)
-                p.delete_routines()
-            r = Routine.objects.create(plan=p)
-            for dish in body.get('dish', []):
-                d = Dish.objects.create(type=dish['type'], routine=r)
-                for si in dish.get('ingredient', []):
-                    ingredient = Ingredient.objects.get(pk=si['id'])
-                    SingleIngredient.objects.create(ingredient=ingredient, amount=si['amount'], dish=d)
-                for sr in dish.get('recipe', []):
-                    recipe = Recipe.objects.get(pk=sr['id'])
-                    SingleRecipe.objects.create(recipe=recipe, amount=sr['amount'], dish=d)
+                p.routines = json.dumps(routines)
+                p.save()
             # after created it join it!
             try:
                 c = Calendar.objects.get(user=user, joined_date=joined_date)
@@ -81,7 +74,7 @@ class PlanList(BaseView):
             Punch.objects.filter(user=user, date=date.today()).update(state=-10)
             return self.success_response(PlanSerializer(p).data)
         except:
-            return self.fail_response(400, 'fail')
+            raise#return self.fail_response(400, 'fail')
 
 
 class PlanDetail(BaseView):
@@ -108,9 +101,8 @@ class CalendarList(BaseView):
         plans = []
         calendars = (Calendar.objects
             .select_related('plan')
-            .select_related('user').filter(user=user, joined_date__gte=start_date, joined_date__lte=end_date)
-            .prefetch_related('plan__routine_set')
-            .prefetch_related('plan__routine_set__dish_set'))
+            .select_related('user')
+            .filter(user=user, joined_date__gte=start_date, joined_date__lte=end_date))
 
         try:
             last_joined = Calendar.objects.filter(user=user, joined_date__lte=start_date).order_by('-joined_date')[0]
@@ -235,9 +227,10 @@ class PunchList(BaseView):
             current_day_count = day % plan.total_days
             if current_day_count == 0:
                 current_day_count = plan.total_days
-            dish = plan.routine_set.get(day=current_day_count).dish_set.get(type=p.type)
+            # 从1开始计数的
+            dish = json.loads(plan.routines)[current_day_count-1]['dish']
             p_json = PunchSerializer(p).data
-            p_json['dish'] = DishSerializer(dish, context={'simple': False}).data
+            p_json['dish'] = [item for item in dish if item['type'] == p.type]
             result.append(p_json)
         count = Punch.objects.filter(user=user, state__gte=10).count()
         return self.success_response({'punchs': result, 'count': count})
@@ -275,10 +268,13 @@ class PlanListAndCurrent(BaseView):
         user = Account.find_account_by_user(request.user)
         try:
             c = Calendar.objects.filter(user=user, joined_date__lte=date.today()).order_by('-joined_date')[0]
-            result = {"plans": serializer.data, "current": CalendarSerializer(c).data}
-            return self.success_response(result)
+            current = CalendarSerializer(c).data
         except IndexError:
-            # new user has no plan
-            result = {"plans": serializer.data, "current": {}}
-            return self.success_response(result)
+            # new user no plan
+            current = {}
+        result = {
+            'plans': serializer.data,
+            'current': current
+        }
+        return self.success_response(result)
 

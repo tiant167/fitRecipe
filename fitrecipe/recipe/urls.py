@@ -6,10 +6,9 @@
 # @Last Modified time: 2015-05-13 20:48:21
 from django.conf.urls import patterns, url
 
-from .views import RecipeList, RecipeDetail, RecipeSearch, IngredientSearch, FoodSearch, SystemCheck, RecipeUpdateList
+from .views import RecipeList, RecipeDetail, RecipeSearch, IngredientSearch, FoodSearch, RecipeUpdateList
 
 urlpatterns = patterns('',
-    url(r'check/$', SystemCheck.as_view()),
     url(r'search/$', RecipeSearch.as_view()),
     url(r'search/ingredient/$', IngredientSearch.as_view()),
     url(r'search/food/$', FoodSearch.as_view()),
